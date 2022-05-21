@@ -71,6 +71,33 @@ namespace Soriamatic
             Conversor cc = new Conversor("3 + ( 4 * 5 )");
             cc.convertir();
             Console.WriteLine(cc.evaluarExpresion());
+
+
+            /*
+             Les propongo mejorar nuestra maquina con lo siguiente:
+            1. Mayor memoria, ya no 100 casillas.
+            2. Agregar instrucción adicional para calcular el resto (mod %)
+            3. Agregar instrucción adicional para calcular potencia
+            4. Cambiar la codificación de líneas para que maneje hexadecimales en lugar de numeros base 10
+            5. Agregar instrucción adicional para imprimir nueva línea.
+            6. Agregar posibilidad de cálculo de flotantes además de enteros.
+            7. Agregar posibilidad de leer cadenas: necesita una nueva instrucción.
+                En el primer espacio de almacenamiento la palabra indicará la longitud de la cadena en el operador y a continuación
+                la segunda mitad de cada palabra será la letra
+                será facil con conversiones a hexadecimal y con que soporta hexa nuestra maquina.
+                Ej. Digamos que la instrucción 60 es LEER_CADENA, entonces 6021 indicaría que la cadena estará en la casilla 21
+                Entonces, estando en la casilla 21 habrá por ejemplo:
+                21 ? 0448
+                22 ? 044F
+                23 ? 044C
+                24 ? 0441
+
+                Donde 48, 4F, 4C y 41 son H, O, L y A respectivamente... siendo la palabra "HOLA"
+            8. Agregar instrucción adicional para mostrar cadenas (las realizadas en el punto anterior)
+                Apuntará a una dirección de memoria donde se sabe que está la primera palabra con la longitud de la cadena
+                Se leran las siguientes casillas de memoria hasta completar la longitud de cadena y se convertiran
+                a char y entonces a cadena para finalmente mostrarlo.
+             */
         }
 
         public static void selectorInstruccion(int regActual)
