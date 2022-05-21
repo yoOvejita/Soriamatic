@@ -15,17 +15,17 @@ namespace Soriamatic
         const int SALTAR = 40, SALTARNEG = 41, SALTARCERO = 42, ALTO = 43;
         static void Main(string[] args)
         {
-           /* Ejemplo de suma de dos numeros
-            * 0 ? 1007 Leer n1
-            * 1 ? 1008 Leer n2
-            * 2 ? 2007 Carar al acumulador n1
-            * 3 ? 3008 Sumar n2 + acumulador -> acumulador
-            * 4 ? 2109 Almacena lo del acumulador en la posición 09
-            * 5 ? 1109 Muestra lo que está en 09
-            * 6 ? 4300 Alto
-            * 7 ? 0000
-            * 8 ? -9999
-            */
+            /* Ejemplo de suma de dos numeros
+             * 0 ? 1007 Leer n1
+             * 1 ? 1008 Leer n2
+             * 2 ? 2007 Carar al acumulador n1
+             * 3 ? 3008 Sumar n2 + acumulador -> acumulador
+             * 4 ? 2109 Almacena lo del acumulador en la posición 09
+             * 5 ? 1109 Muestra lo que está en 09
+             * 6 ? 4300 Alto
+             * 7 ? 0000
+             * 8 ? -9999
+             */
 
             /* Ejemplo demostrar el mayor de 2 numeros
              * 0 ? 1010 Leer n1
@@ -41,7 +41,7 @@ namespace Soriamatic
              * 10? 0000
              * 11? 0000
              */
-
+            /*
             // CARGAR PROGRAMA
             while (linea < memoria.Length){
                 Console.Write(linea + " ? ");
@@ -66,6 +66,11 @@ namespace Soriamatic
 
             Academico.Enseñanza.Docente doc = new Academico.Enseñanza.Docente(); 
             Console.WriteLine(est.edad);
+            */
+
+            Conversor cc = new Conversor("3 + ( 4 * 5 )");
+            cc.convertir();
+            Console.WriteLine(cc.evaluarExpresion());
         }
 
         public static void selectorInstruccion(int regActual)
