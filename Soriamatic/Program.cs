@@ -1,5 +1,6 @@
 ﻿using System;
 using Academico;
+using System.Collections.Generic;
 
 namespace Soriamatic
 {
@@ -67,11 +68,20 @@ namespace Soriamatic
             Academico.Enseñanza.Docente doc = new Academico.Enseñanza.Docente(); 
             Console.WriteLine(est.edad);
             */
+            IDictionary<Tuple<int, char>, int> dic = new Dictionary<Tuple<int, char>, int>();
+            dic.Add(Tuple.Create(90,'v'), 29); // Z
+            dic.Add(Tuple.Create(02, 'c'), 30); // 2
+            dic.Add(Tuple.Create(88, 'v'), 31); // X
+            dic.Add(Tuple.Create(05, 'c'), 32); // 5
+            dic.Add(Tuple.Create(89, 'v'), 33); // Y
+            IDictionary<int, string> prog = new Dictionary<int,string>();
+            prog.Add(0, "1031");//se leyó X
+            prog.Add(1, "1033");//se leyó Y
 
-            Conversor cc = new Conversor("3 + ( 4 * 5 )");
+            ConversorPCC cc = new ConversorPCC("2 * ( X - 5 ) / Y", dic, prog, 2, 98);
             cc.convertir();
             Console.WriteLine(cc.evaluarExpresion());
-
+            Console.WriteLine(cc.informe());
 
             /*
              Les propongo mejorar nuestra maquina con lo siguiente:
@@ -98,6 +108,21 @@ namespace Soriamatic
                 Se leran las siguientes casillas de memoria hasta completar la longitud de cadena y se convertiran
                 a char y entonces a cadena para finalmente mostrarlo.
              */
+            char c = Convert.ToChar(122);//ASCII 'z'
+            Console.WriteLine(c);
+            char[] ccc;
+            string cadena = Console.ReadLine();
+            ccc = cadena.ToCharArray();
+            foreach (char ch in ccc)
+            {
+                int decimale = (int)ch;
+                string hexadecimale = decimale.ToString("X"); // decimal  -> hexadecimal
+                Console.WriteLine(hexadecimale);
+                
+                Console.WriteLine(int.Parse(hexadecimale, System.Globalization.NumberStyles.HexNumber));
+            }
+                
+
         }
 
         public static void selectorInstruccion(int regActual)
@@ -155,4 +180,25 @@ namespace Soriamatic
             }
         }
     }
+
+    /*  *********************
+        *       PEPE++      *
+        *  ******************
+    10 REM ***************
+    20 REM +  SS++       *
+    30 REM ***************
+    40 LEER a
+    45 LEER b 
+    50 SEA c = a + b / 19
+    60 MOSTRAR c
+    70 IR 40
+    80 SI a > b IR 100   // < > <= >= == !=
+    90 FIN
+    100 ...
+
+
+    Archivo PEPE++ -> PCC -> Archivo SLM[] -> Máquina Soriamatic -> Salida de ejecución en consola.
+
+
+     */
 }

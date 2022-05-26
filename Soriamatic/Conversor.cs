@@ -36,7 +36,7 @@ namespace Soriamatic
          */
 
         private string exp_infix;
-        private string exp_postfix;
+        protected string exp_postfix;
         Stack pila;
         public Conversor(string infix)
         {
@@ -84,7 +84,7 @@ namespace Soriamatic
             }
             exp_postfix = postfix.TrimEnd();
         }
-        private bool esOperador(string op)
+        protected bool esOperador(string op)
         {
             //también con tryparse
             //if (op.Equals("+"))
