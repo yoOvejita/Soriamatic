@@ -107,8 +107,178 @@ namespace Soriamatic
                         }
                         break;
                     case "if":
+                        #region IF
+                        //Es complicado; prestar atención
+                        // SE cumple    [var/const] [desigualdad]   [var/const]
+                        //              [2]         [3]             [4]
+
+                        /***************************************************************
+                         * 1: Agegar todas las variables o constantes a la tabala, si no están
+                         *****************************************************************/
+
+                        int posNum1, posNum2;//aca guardamos las posiciones de los numeros; nos será util a futuro
+                        #region para primer elemento
+                        if (int.TryParse(tokens[2], out numerico))//para el primer elemento
+                        {//sii es num constante
+                            if(!tablaDeSimbolos.TryGetValue(Tuple.Create(numerico,'c'), out posNum1))
+                            {//si no está en la tabla,, lo agregamos
+                                tablaDeSimbolos.Add(Tuple.Create(numerico, 'c'), posicionDisponibleValor);
+                                programaCompilado.Add(posicionDisponibleValor, numerico + "");
+                                posNum1 = posicionDisponibleValor--;//nos servirá más adelante; actualizando pos disponible de val
+                            }
+                        }
+                        else
+                        {//es una letra así que debe ser variable
+                            numerico = tokens[2][0];//sacando valor ASCII
+                            if (!tablaDeSimbolos.TryGetValue(Tuple.Create(numerico, 'v'), out posNum1))
+                            {//si no está en la tabla,, lo agregamos
+                                tablaDeSimbolos.Add(Tuple.Create(numerico, 'v'), posicionDisponibleValor);
+                                programaCompilado.Add(posicionDisponibleValor, "0000");
+                                posNum1 = posicionDisponibleValor--;//nos servirá más adelante; actualizando pos disponible de val
+                            }
+                        }
+                        #endregion
+
+                        #region para segundo elemento
+                        if (int.TryParse(tokens[4], out numerico))//para el primer elemento
+                        {//sii es num constante
+                            if (!tablaDeSimbolos.TryGetValue(Tuple.Create(numerico, 'c'), out posNum2))
+                            {//si no está en la tabla,, lo agregamos
+                                tablaDeSimbolos.Add(Tuple.Create(numerico, 'c'), posicionDisponibleValor);
+                                programaCompilado.Add(posicionDisponibleValor, numerico + "");
+                                posNum2 = posicionDisponibleValor--;//nos servirá más adelante; actualizando pos disponible de val
+                            }
+                        }
+                        else
+                        {//es una letra así que debe ser variable
+                            numerico = tokens[4][0];//sacando valor ASCII
+                            if (!tablaDeSimbolos.TryGetValue(Tuple.Create(numerico, 'v'), out posNum2))
+                            {//si no está en la tabla,, lo agregamos
+                                tablaDeSimbolos.Add(Tuple.Create(numerico, 'v'), posicionDisponibleValor);
+                                programaCompilado.Add(posicionDisponibleValor, "0000");
+                                posNum2 = posicionDisponibleValor--;//nos servirá más adelante; actualizando pos disponible de val
+                            }
+                        }
+                        #endregion
+
+                        /***************************************************************
+                         * 2: Ahora vamos a evaluar la expresión lógica simple > < >= <= == !=
+                         *****************************************************************/
+
+                        //Recordando que:   [goto]  [linea PEPE++]
+                        //                  [5]     [6]
+                        switch (tokens[3])
+                        {
+                            case "==":
+                                /* IF X == Y GOTO Z
+                                 * 20 X
+                                 * 31 Y
+                                 * 42 Z */
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (2000 + posNum1)+"");//acá usamos posNum1
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (3100 + posNum2) + "");//acá usamos posNum2
+                                //comprobamos si la linea a la menciona goto satá en el futuro o no(COPIADO de goto y modificado)
+                                //verificar si la linea a la que pretende ir existe
+                                numerico = int.Parse(tokens[6]);
+                                if (tablaDeSimbolos.TryGetValue(Tuple.Create(numerico, 'l'), out posicionEnSLM))
+                                {//si ya existe: es facil
+                                    programaCompilado.Add(posicionDisponibleInstruccion++, (4200 + posicionEnSLM) + "");
+                                }
+                                else
+                                {//si no existe: dejamos 4000 y marcamos en flags
+                                    programaCompilado.Add(posicionDisponibleInstruccion, "4200");
+                                    flags[posicionDisponibleInstruccion++] = numerico;//dejamos la linea PEPE++ que aun no existe
+                                }
+                                break;
+                            case "<":
+                                /* IF X < Y GOTO Z
+                                 * 20 X
+                                 * 31 Y
+                                 * 41 Z */
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (2000 + posNum1) + "");//acá usamos posNum1
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (3100 + posNum2) + "");//acá usamos posNum2
+                                //el siguiente metodo lo definimos mas adelante. Hace lo mismo que el == anterior
+                                verificarInsertar(int.Parse(tokens[6]), 4100, posicionDisponibleInstruccion++);
+                                break;
+                            case ">":
+                                /* IF X > Y GOTO Z
+                                 * 20 Y
+                                 * 31 X
+                                 * 41 Z */
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (2000 + posNum2) + "");//acá usamos posNum1
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (3100 + posNum1) + "");//acá usamos posNum2
+                                verificarInsertar(int.Parse(tokens[6]), 4100, posicionDisponibleInstruccion++);
+                                break;
+                            //los difíciles
+                            case "!=":
+                                /* IF X != Y GOTO Z
+                                 * 20 X
+                                 * 31 Y
+                                 * 42 F   SALTOCERO 
+                                   40 Z
+                                 F
+                                 */
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (2000 + posNum1) + "");//acá usamos posNum1
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (3100 + posNum2) + "");//acá usamos posNum2
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (4200 + posicionDisponibleInstruccion + 1 ) + "");
+                                verificarInsertar(int.Parse(tokens[6]), 4000, posicionDisponibleInstruccion++);
+                                posicionDisponibleInstruccion++;//Un incremento extra pues no queremos sobrescribir la linea F
+                                break;
+                            case "<=":
+                                /* IF X <= Y GOTO Z
+                                 * 20 Y
+                                 * 31 X
+                                 * 41 F   
+                                   40 Z
+                                 F
+                                 */
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (2000 + posNum2) + "");//acá usamos posNum1
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (3100 + posNum1) + "");//acá usamos posNum2
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (4100 + posicionDisponibleInstruccion + 1) + "");
+                                verificarInsertar(int.Parse(tokens[6]), 4000, posicionDisponibleInstruccion++);
+                                posicionDisponibleInstruccion++;//Un incremento extra pues no queremos sobrescribir la linea F
+                                break;
+                            case ">=":
+                                /* IF X <= Y GOTO Z
+                                 * 20 X
+                                 * 31 Y
+                                 * 41 F   
+                                   40 Z
+                                 F
+                                 */
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (2000 + posNum1) + "");//acá usamos posNum1
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (3100 + posNum2) + "");//acá usamos posNum2
+                                programaCompilado.Add(posicionDisponibleInstruccion++, (4100 + posicionDisponibleInstruccion + 1) + "");
+                                verificarInsertar(int.Parse(tokens[6]), 4000, posicionDisponibleInstruccion++);
+                                posicionDisponibleInstruccion++;//Un incremento extra pues no queremos sobrescribir la linea F
+                                break;
+                            default:
+                                Console.WriteLine($"Error de IF: Operador lógico no reconocido -> {tokens[3]}");
+                                break;
+                        }
+
                         break;
+                    #endregion
                     case "let":
+                        #region LET
+                        //Es complicado... pero nos ayudará nuestro ConversorPCC
+                        /***************************************************************
+                         * 1: Agegar todas las variables o constantes a la tabala, si no están
+                         *****************************************************************/
+                        //  60  let x   =   5   *   a
+                        //  [0] [1] [2] [3] [4] ....
+                        //Vamos a usar aquello que usamos en if, pero resumido en un metodo con control de paréntesis etc
+                        posicionDisponibleValor = verificarAgregarValor(tokens[2], posicionDisponibleValor);//retorna porque puede ser que no exista y lo crea (al valor constante o variable)
+
+                        for(int i = 4; i < tokens.Length; i++)
+                            posicionDisponibleValor = verificarAgregarValor(tokens[2], posicionDisponibleValor);
+                        /***************************************************************
+                         * 2: Ahora vamos a evaluar la expresión algebraica
+                         *****************************************************************/
+
+                        //definir los 2 métodos que faltan más abajo y usar el ConversorPCC acá
+
+
+                        #endregion
                         break;
                     default:
                         Console.WriteLine($"Error de compilación: comando desconocido: {tokens[1]}");
