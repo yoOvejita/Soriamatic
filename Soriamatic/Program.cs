@@ -68,7 +68,7 @@ namespace Soriamatic
             Academico.Enseñanza.Docente doc = new Academico.Enseñanza.Docente(); 
             Console.WriteLine(est.edad);
             */
-            IDictionary<Tuple<int, char>, int> dic = new Dictionary<Tuple<int, char>, int>();
+            /*IDictionary<Tuple<int, char>, int> dic = new Dictionary<Tuple<int, char>, int>();
             dic.Add(Tuple.Create(90,'v'), 29); // Z
             dic.Add(Tuple.Create(02, 'c'), 30); // 2
             dic.Add(Tuple.Create(88, 'v'), 31); // X
@@ -82,7 +82,7 @@ namespace Soriamatic
             cc.convertir();
             Console.WriteLine(cc.evaluarExpresion());
             Console.WriteLine(cc.informe());
-
+            */
             /*
              Les propongo mejorar nuestra maquina con lo siguiente:
             1. Mayor memoria, ya no 100 casillas.
@@ -108,6 +108,14 @@ namespace Soriamatic
                 Se leran las siguientes casillas de memoria hasta completar la longitud de cadena y se convertiran
                 a char y entonces a cadena para finalmente mostrarlo.
              */
+
+
+
+            /*Etapa final * */
+            PCC compilador = new PCC();
+            compilador.recibeTransformaArchivo();
+            compilador.compilar();
+
             char c = Convert.ToChar(122);//ASCII 'z'
             Console.WriteLine(c);
             char[] ccc;

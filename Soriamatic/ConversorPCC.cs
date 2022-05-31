@@ -88,7 +88,7 @@ namespace Soriamatic
 
                 actual = (string)cola.Dequeue();
             }
-            return (int)pila.Pop();
+            return (int)pila.Pop();// la posición en memoria, del resultado para SLM[]
         }
 
         public string informe() {
@@ -99,6 +99,7 @@ namespace Soriamatic
             texto += $"********************************************\nExpresion postfix: {exp_postfix}";
             return texto;
         }
-
+        public int getPosicionActual() { return posicionActual; }
+        public int getPosicionLibre() { return posicionLibre; }
     }
 }

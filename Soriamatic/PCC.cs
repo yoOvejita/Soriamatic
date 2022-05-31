@@ -270,12 +270,24 @@ namespace Soriamatic
                         posicionDisponibleValor = verificarAgregarValor(tokens[2], posicionDisponibleValor);//retorna porque puede ser que no exista y lo crea (al valor constante o variable)
 
                         for(int i = 4; i < tokens.Length; i++)
-                            posicionDisponibleValor = verificarAgregarValor(tokens[2], posicionDisponibleValor);
+                            posicionDisponibleValor = verificarAgregarValor(tokens[i], posicionDisponibleValor);
                         /***************************************************************
                          * 2: Ahora vamos a evaluar la expresión algebraica
                          *****************************************************************/
-
-                        //definir los 2 métodos que faltan más abajo y usar el ConversorPCC acá
+                        string[] exp = linea.Split('=');// genera dos elementos: [60 let r ] [ n * 2]
+                        ConversorPCC conversor = new ConversorPCC(exp[1].Trim(),tablaDeSimbolos,programaCompilado,
+                            posicionDisponibleInstruccion,posicionDisponibleValor);
+                        conversor.convertir();//a estas alturas estará en postfix
+                        //evaluamos la expresion y ponemos el resultado en la variable // let r = 
+                        //OJO: que la variable destino es el tokens[2]
+                        int posicionResultado = conversor.evaluarExpresion();
+                        posicionDisponibleInstruccion = conversor.getPosicionActual();
+                        posicionDisponibleValor = conversor.getPosicionLibre();
+                        if(tablaDeSimbolos.TryGetValue(Tuple.Create((int)tokens[2][0], 'v'), out int posicionDeVar))//Obtenemos la posición de la variable destino
+                        {
+                            programaCompilado.Add(posicionDisponibleInstruccion++, (2000 + posicionResultado)+"");//que cargue la posición de resultado
+                            programaCompilado.Add(posicionDisponibleInstruccion++, (2100 + posicionDeVar)+"");//que lo almacene en la posición de variable
+                        }
 
 
                         #endregion
@@ -285,9 +297,55 @@ namespace Soriamatic
                         break;
                 }
                 #endregion
+
+
             }
+            //Acabó la primer pasada
+            //Celebremos volcando la memoria ¿cómo se ve?
+            Console.WriteLine("*********** PROGRAMA ************");
+            for (int i = 0; i < 100; i++)
+                if (programaCompilado.ContainsKey(i))
+                    Console.WriteLine($"{i} ? {programaCompilado[i]}");
         }
 
+        private void verificarInsertar(int lineaGOTO, int instruccionSLM, int posDispInstruccion)
+        {
+            if (tablaDeSimbolos.TryGetValue(Tuple.Create(lineaGOTO, 'l'), out int posicionSLM))
+            {//si existe, es facil
+                programaCompilado.Add(posDispInstruccion, (instruccionSLM + posicionSLM) + "");
+            }
+            else
+            {//si no existe, se deja la instruccion (4100) y marcamos en flags 
+                programaCompilado.Add(posDispInstruccion, instruccionSLM + "");
+                flags[posDispInstruccion] = lineaGOTO;
+            }
 
+        }
+
+        private int verificarAgregarValor(string token, int posicion)
+        {
+            if (!"()+-*/^%".Contains(token))//Si es parentesis u operador -> no se considera
+            {
+                if(int.TryParse(token, out int numerico))
+                {//sí es numero constante
+                    if(!tablaDeSimbolos.TryGetValue(Tuple.Create(numerico, 'c'), out int n))
+                    {//si no está en la tabla de símbolos
+                        Console.WriteLine($"Va a guardar {numerico} como 'c'");
+                        tablaDeSimbolos.Add(Tuple.Create(numerico, 'c'), posicion);
+                        programaCompilado.Add(posicion--, numerico + "");
+                    }
+                }
+                else
+                {//es una letra, asi que debe ser var
+                    numerico = token[0];
+                    if (!tablaDeSimbolos.TryGetValue(Tuple.Create(numerico, 'v'), out int n))
+                    {//si no está en la tabla de símbolos
+                        tablaDeSimbolos.Add(Tuple.Create(numerico, 'v'), posicion);
+                        programaCompilado.Add(posicion--, "0000");
+                    }
+                }
+            }
+            return posicion;
+        }
     }
 }
