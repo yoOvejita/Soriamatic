@@ -78,13 +78,13 @@ namespace Soriamatic
                         numerico = tokens[2][0];
                         if (tablaDeSimbolos.TryGetValue(Tuple.Create(numerico, 'v'), out posicionEnSLM))
                         {//si ya existe
-                            programaCompilado.Add(posicionDisponibleInstruccion++, (1000 + posicionEnSLM) + "");
+                            programaCompilado.Add(posicionDisponibleInstruccion++, (1100 + posicionEnSLM) + "");
                         }
                         else
                         {//si no existe
                             tablaDeSimbolos.Add(Tuple.Create(numerico, 'v'), posicionDisponibleValor);
                             //en el prog SLM[] agregamos la instruccion de input y (opc) reservamos la pos mem de var
-                            programaCompilado.Add(posicionDisponibleInstruccion++, (1000 + posicionDisponibleValor) + "");
+                            programaCompilado.Add(posicionDisponibleInstruccion++, (1100 + posicionDisponibleValor) + "");
                             programaCompilado.Add(posicionDisponibleValor--, "0000");
                         }
                         break;
@@ -301,11 +301,38 @@ namespace Soriamatic
 
             }
             //Acabó la primer pasada
+
+            //******* LLamada a la segunda pasada
+            compilar2();
+
             //Celebremos volcando la memoria ¿cómo se ve?
             Console.WriteLine("*********** PROGRAMA ************");
             for (int i = 0; i < 100; i++)
                 if (programaCompilado.ContainsKey(i))
                     Console.WriteLine($"{i} ? {programaCompilado[i]}");
+
+            
+        }
+
+        private void compilar2()
+        {
+            for(int i = 0; i<flags.Length; i++)
+                if (flags[i] >= 0)
+                {
+                    //el contenido de flags[i] es la linea PEPE++ a la que debe saltar la instruccion de SLM[]
+                    //asi que: rescatamos la posicion en SLM[] asiciada a dicha linea PEPE++ (ahora está en tablaDeSimbolos)
+                    if(tablaDeSimbolos.TryGetValue(Tuple.Create(flags[i],'l'), out int posicionSLM))
+                    { 
+                        //rescatar la instrucción en i
+                        if(programaCompilado.TryGetValue(i, out string instruccion))
+                        {
+                            //"4200" -> 4214
+                            instruccion = (int.Parse(instruccion) + posicionSLM) + "";
+                            programaCompilado[i] = instruccion;
+                            flags[i] = -1;
+                        }
+                    }
+                }
         }
 
         private void verificarInsertar(int lineaGOTO, int instruccionSLM, int posDispInstruccion)
